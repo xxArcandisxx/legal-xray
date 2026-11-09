@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+*.db
+*.db-*
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+ocr-repro.pdf
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+*.log
+.DS_Store
+Thumbs.db

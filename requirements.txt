@@ -1,0 +1,9 @@
+flask
+flask-cors
+openai
+PyMuPDF
+pdfplumber
+python-docx
+python-dotenv
+gunicorn
+pytest
