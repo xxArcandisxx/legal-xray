@@ -4,58 +4,104 @@
 <title>Legal X-ray: understand what you sign</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--ink:#14213d;--paper:#eef1f5;--line:#d3d9e3;--hi:#ffc9c4;--hib:#c62828;--me:#ffe3a3;--meb:#b26a00;--lo:#cdeed6;--lob:#1b7a3d}
+:root{--ink:#111;--muted:#667085;--paper:#f7f7f5;--surface:#fff;--line:#e4e4e1;--brand:#111;--brand-dark:#333;--hi:#ffe1df;--hib:#c2362b;--me:#fff1c7;--meb:#a66200;--lo:#dff6e7;--lob:#187a45;--shadow:0 12px 32px rgba(17,17,17,.07)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 "Noto Sans","Noto Sans Devanagari","Noto Sans Kannada",sans-serif}
-header,main{max-width:1100px;margin:0 auto;padding:20px}
-h1{font:600 clamp(1.9rem,4.5vw,2.8rem)/1.1 "Source Serif 4",serif;margin:.3em 0 .2em}
-.tag{margin:0;font-size:1.05rem}.note{font-size:.85rem;opacity:.75;margin:.4em 0 0}
-.privacy{font-size:.82rem;background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px}
-.panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:10px}
-textarea{width:100%;min-height:90px;padding:10px;border:1px solid var(--line);border-radius:6px;font:inherit}
+body{margin:0;background:radial-gradient(circle at 85% -10%,#ecece8 0,transparent 34%),var(--paper);color:var(--ink);font:15px/1.55 "Noto Sans","Noto Sans Devanagari","Noto Sans Kannada",sans-serif}
+header{width:100%;padding:0}
+.nav-bar{position:sticky;top:0;z-index:10;border-bottom:1px solid rgba(17,17,17,.1);background:rgba(255,255,255,.9);backdrop-filter:blur(14px)}
+.nav-inner,.hero,main{max-width:1160px;margin:0 auto;padding-left:28px;padding-right:28px}
+.nav-inner{height:72px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.nav-inner .brand{flex-shrink:0}.nav-links{display:flex;align-items:center;gap:7px;margin-left:auto}
+.nav-link{border:0;background:transparent;color:var(--muted);font-size:.9rem;padding:8px 11px}.nav-link:hover{color:var(--ink);border-color:transparent;transform:none}
+.account-actions{display:flex;align-items:center;gap:8px;border-left:1px solid var(--line);padding-left:16px}
+.sign-in{border:0;background:transparent;color:var(--ink);padding:8px 11px;font-size:.9rem}.sign-in:hover{transform:none;background:#f0f0ed}
+.create-account{padding:9px 14px;font-size:.88rem;background:#fff;border-color:#fff;color:#111}.create-account:hover{background:#d4d4d4;border-color:#d4d4d4}
+.hero{padding-top:46px;padding-bottom:24px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--brand);font-weight:700;letter-spacing:.02em;text-decoration:none}
+.brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#111;box-shadow:0 6px 14px #1112}
+.brand-mark svg{width:24px;height:24px;display:block}
+h1{font:600 clamp(2.2rem,4.5vw,3.8rem)/1.05 "Source Serif 4",serif;letter-spacing:-.03em;margin:.55em 0 .18em}
+.tag{margin:0;font-size:1.15rem;color:#344054}.note{font-size:.88rem;color:var(--muted);margin:.55em 0 0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;display:grid;gap:16px;box-shadow:var(--shadow)}
+.privacy{font-size:.82rem;background:#f5f5f2;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:#555}
+.panel-title{font-size:1.05rem}.panel-subtitle{color:var(--muted);font-size:.88rem;margin:0}
+.upload{border:1.5px dashed #b9b9b4;border-radius:14px;padding:22px;text-align:center;background:#fafaf8;transition:.2s}
+.upload:hover{border-color:var(--brand);background:#f3f3f0}.upload strong{display:block;font-size:1rem}.upload span{display:block;color:var(--muted);font-size:.85rem;margin:3px 0 12px}
+input[type=file]{max-width:100%;font:inherit;color:var(--muted)}
+textarea{width:100%;min-height:130px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font:inherit;resize:vertical;transition:.2s}
+textarea:focus{border-color:var(--brand);box-shadow:0 0 0 4px #335cff18;outline:0}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-button{font:inherit;font-weight:600;padding:9px 16px;border-radius:6px;border:1px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer}
-button.main{background:var(--ink);color:#fff}button:disabled{opacity:.6}
-button:focus-visible,mark:focus-visible{outline:3px solid #3b6cf6;outline-offset:2px}
-.lang button[aria-pressed=true]{background:var(--ink);color:#fff}
-#out{margin-top:22px}
+button{font:inherit;font-weight:600;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;transition:.2s}
+button:hover{border-color:#999;transform:translateY(-1px)}button.main{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 5px 12px #1112}button.main:hover{background:var(--brand-dark);border-color:var(--brand-dark)}button:disabled{opacity:.6;cursor:wait;transform:none}
+button:focus-visible,mark:focus-visible{outline:3px solid #7d96ff;outline-offset:2px}
+.lang{background:#f0f0ed;border-radius:11px;padding:4px;gap:3px}.lang button{border:0;background:transparent;padding:7px 12px;border-radius:8px;font-size:.86rem}.lang button:hover{transform:none}.lang button[aria-pressed=true]{background:#111;color:#fff;box-shadow:0 2px 6px #1112}
+#out{margin-top:30px}
 .top{display:flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:space-between}
-.score{font:600 3rem/1 "Source Serif 4",serif;color:var(--hib)}
-.grid{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;margin-top:14px}
+.result-head{padding-bottom:4px}.score{font:600 3.5rem/1 "Source Serif 4",serif;color:var(--hib);letter-spacing:-.04em}.score-wrap{display:flex;align-items:baseline;gap:5px}.score-wrap small{color:var(--muted)}
+.result-type{font-size:1.12rem}.summary{max-width:560px;color:#475467}
+.grid{display:grid;grid-template-columns:1.2fr 1fr;gap:22px;margin-top:18px}
 @media(max-width:820px){.grid{grid-template-columns:1fr}}
-.sheet{background:#fff;border:1px solid var(--line);border-radius:4px;padding:26px;font:1.02rem/1.75 "Source Serif 4",serif;white-space:pre-wrap;max-height:75vh;overflow:auto}
+.sheet{background:#fff;border:1px solid var(--line);border-radius:14px;padding:30px;font:1.02rem/1.8 "Source Serif 4",serif;white-space:pre-wrap;max-height:75vh;overflow:auto;box-shadow:var(--shadow)}
 mark{cursor:pointer;color:inherit;padding:1px 2px;border-radius:2px}
 mark.high{background:var(--hi);box-shadow:0 2px 0 var(--hib)}mark.medium{background:var(--me);box-shadow:0 2px 0 var(--meb)}mark.low{background:var(--lo);box-shadow:0 2px 0 var(--lob)}
-.card{background:#fff;border:1px solid var(--line);border-left:6px solid;border-radius:6px;padding:12px 14px;margin-bottom:12px}
+.card{background:#fff;border:1px solid var(--line);border-left:5px solid;border-radius:12px;padding:16px 17px;margin-bottom:12px;box-shadow:0 5px 16px rgba(17,17,17,.04)}
 .card.high{border-left-color:var(--hib)}.card.medium{border-left-color:var(--meb)}.card.low{border-left-color:var(--lob)}
-.card p{margin:.4em 0}.card .cat{opacity:.7;margin-left:6px}.card.flash{outline:3px solid var(--ink)}
-.ask{background:var(--paper);padding:8px 10px;border-radius:6px}
+.card p{margin:.55em 0}.card .cat{color:var(--muted);margin-left:8px}.card.flash{outline:3px solid var(--brand)}
+.ask{background:#f5f5f2;padding:10px 12px;border-radius:9px}
 #err{color:var(--hib);font-weight:600}
+.history-item{display:flex;width:100%;text-align:left;justify-content:space-between;margin:7px 0;padding:12px 14px;border-radius:10px;font-weight:500}.history-item .delete-history{border:0;padding:0 0 0 12px;color:#a33;background:transparent;font-size:.8rem}
+.auth-modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:#1118;padding:18px}.auth-modal[hidden]{display:none}.auth-box{width:min(410px,100%);background:#fff;border-radius:18px;padding:24px;box-shadow:0 24px 70px #1114}.auth-box h2{margin:0 0 5px;font:600 1.8rem/1.1 "Source Serif 4",serif}.auth-box p{color:var(--muted);font-size:.9rem;margin:0 0 18px}.auth-box input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font:inherit;margin:5px 0 10px}.auth-box .auth-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}.auth-box .close-auth{border:0;background:transparent}.auth-message{color:var(--hib);font-size:.85rem;min-height:1.3em}
+.account-view{max-width:1160px;margin:0 auto;padding:28px}.account-view[hidden]{display:none}.account-grid{display:grid;grid-template-columns:280px 1fr;gap:18px}.profile-card,.saved-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:var(--shadow)}.profile-card h2,.saved-card h2{font:600 1.7rem/1.15 "Source Serif 4",serif;margin:0 0 6px}.profile-card p{color:var(--muted);font-size:.88rem}.profile-card label{display:block;font-weight:600;font-size:.85rem;margin-top:18px}.profile-card input{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:9px;font:inherit;margin-top:6px}.saved-list{display:grid;gap:9px;margin-top:18px}.saved-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:11px;padding:12px 14px}.saved-meta{min-width:0}.saved-meta strong,.saved-meta span{display:block}.saved-meta span{color:var(--muted);font-size:.82rem}.saved-actions{display:flex;gap:6px;flex-shrink:0}.saved-actions button{padding:7px 10px;font-size:.8rem}.account-empty{color:var(--muted);padding:16px 0}@media(max-width:720px){.account-view{padding:18px}.account-grid{grid-template-columns:1fr}.saved-row{align-items:flex-start;flex-direction:column}.saved-actions{width:100%}}
+@media(max-width:600px){.nav-inner,.hero,main{padding-left:18px;padding-right:18px}.nav-inner{height:64px}.nav-links{display:none}.account-actions{border-left:0;padding-left:0}.sign-in{display:none}.create-account{padding:8px 11px;font-size:.8rem}.hero{padding-top:28px}.panel{padding:17px;border-radius:14px}.grid{gap:14px}.sheet{padding:20px}.upload{padding:17px}.row .main{width:100%}}
 </style></head><body>
 <header>
+<div class="nav-bar"><div class="nav-inner">
+<a class="brand" href="/" aria-label="Legal X-ray home"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><path fill="#fff" d="M5 24h22v3H5z"/><path fill="#fff" d="M9 21h14v3H9z"/><path fill="#fff" d="m8.6 8.5 4.2-4.2 10.9 10.9-4.2 4.2z"/><path fill="#fff" d="m5.4 5.2 4.2-4.2 7.4 7.4-4.2 4.2z"/><path fill="#fff" d="m18.7 18.6 4.2-4.2 4.2 4.2-4.2 4.2z"/></svg></span><span>LEGAL XRAY</span></a>
+<div class="account-actions"><button class="sign-in" type="button">Sign in</button><button class="create-account" type="button">Create account</button></div>
+</div></div>
+<div class="hero">
 <h1>Legal X-ray</h1>
 <p class="tag">Understand what you sign, in your own language.</p>
 <p class="note">Upload a rental agreement, job offer or legal notice. This is an explainer, not legal advice.</p>
+</div>
 </header>
-<main>
+<main id="home-view">
 <section class="panel">
-<input type="file" id="file" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.webp" aria-label="Upload document">
+<div><div class="panel-title"><b>Start with your document</b></div><div class="panel-subtitle">Get a plain-language review of the clauses that matter most.</div></div>
+<div class="upload"><strong>Upload a document</strong><span>PDF, DOCX, TXT, or image up to your app limit</span><input type="file" id="file" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.webp" aria-label="Upload document"></div>
 <textarea id="paste" placeholder="Or paste the document text here"></textarea>
 <div class="row"><button class="main" id="go">Check my document</button><button id="smp">Try a sample rental agreement</button><span id="err" role="alert"></span></div>
 <div class="privacy"><b>Privacy:</b> your original file is not stored. We save only anonymous analysis results in this browser's history so you can revisit them.</div>
 </section>
 <section class="panel" id="history-panel"><div class="top"><b>Your recent analyses</b><button id="refresh-history">Refresh</button></div><div id="history-list" class="note">No analyses yet.</div></section>
 <section id="out" hidden>
-<div class="top">
-<div class="row"><div><div class="score" id="score">0</div><small id="slbl"></small></div>
-<div><b id="type"></b><div id="sum" style="max-width:560px"></div></div></div>
+<div class="top result-head">
+<div class="row"><div class="score-wrap"><div class="score" id="score">0</div><small id="slbl"></small></div>
+<div><b class="result-type" id="type"></b><div class="summary" id="sum"></div></div></div>
 <div class="row lang" role="group" aria-label="Language">
 <button data-l="en" aria-pressed="true">English</button><button data-l="hi" aria-pressed="false">हिंदी</button><button data-l="kn" aria-pressed="false">ಕನ್ನಡ</button></div>
 </div>
 <div class="grid"><div class="sheet" id="doc" tabindex="0"></div><div id="cards"></div></div>
 </section>
 </main>
+<main class="account-view" id="account-view" hidden>
+<div class="account-grid">
+<section class="profile-card"><h2>Your account</h2><p id="account-email"></p><label for="profile-name">Display name</label><input id="profile-name" type="text" maxlength="80" placeholder="Your name"><div class="row" style="margin-top:14px"><button class="main" id="save-profile" type="button">Save profile</button><button id="sign-out" type="button">Sign out</button></div><div class="auth-message" id="profile-message" role="status"></div></section>
+<section class="saved-card"><h2>Saved documents</h2><p class="panel-subtitle">Your stored files and analysis results.</p><div class="saved-list" id="saved-list"><div class="account-empty">Loading your saved documents…</div></div></section>
+</div>
+</main>
+<div class="auth-modal" id="auth-modal" hidden>
+<form class="auth-box" id="auth-form">
+<h2 id="auth-title">Sign in</h2><p id="auth-subtitle">Access your saved analyses and documents.</p>
+<input id="auth-email" type="email" placeholder="Email address" autocomplete="email" required>
+<input id="auth-password" type="password" placeholder="Password" autocomplete="current-password" required>
+<div class="auth-message" id="auth-message" role="alert"></div>
+<div class="auth-actions"><button class="close-auth" type="button" id="close-auth">Cancel</button><button class="main" type="submit" id="auth-submit">Sign in</button></div>
+<button type="button" id="reset-password" style="border:0;padding:6px 0;margin-top:10px;font-size:.82rem">Forgot password?</button>
+</form>
+</div>
 <script>
 const $=i=>document.getElementById(i);
 const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
@@ -63,20 +109,37 @@ const LBL={en:{high:'High risk',medium:'Check this',low:'Minor',ask:'What to ask
 hi:{high:'ज़्यादा जोखिम',medium:'ध्यान दें',low:'कम जोखिम',ask:'क्या माँगें',score:'100 में जोखिम स्कोर'},
 kn:{high:'ಹೆಚ್ಚು ಅಪಾಯ',medium:'ಗಮನಿಸಿ',low:'ಕಡಿಮೆ ಅಪಾಯ',ask:'ಏನು ಕೇಳಬೇಕು',score:'100ರಲ್ಲಿ ಅಪಾಯ ಅಂಕ'}};
 let R=null,T='',lang='en',currentId=null;
+let supabaseClient=null,authSession=null,authMode='signin';
 const CLIENT_ID=localStorage.getItem('legal-xray-client-id')||crypto.randomUUID();
 localStorage.setItem('legal-xray-client-id',CLIENT_ID);
+const authHeaders=()=>authSession?.access_token?{'Authorization':`Bearer ${authSession.access_token}`}:{};
+async function setupAuth(){
+ try{const c=await fetch('/auth-config').then(r=>r.json());if(c.url&&c.anon_key){supabaseClient=window.supabase.createClient(c.url,c.anon_key);const state=await supabaseClient.auth.getSession();authSession=state.data.session;supabaseClient.auth.onAuthStateChange((_event,session)=>{authSession=session;const signedIn=Boolean(session);$('auth-submit').textContent=authMode==='signup'?'Create account':signedIn?'Sign out':'Sign in';document.querySelector('.sign-in').textContent=signedIn?'Account':'Sign in';document.querySelector('.create-account').hidden=signedIn;refreshHistory()})}}
+ catch(e){console.error('Authentication setup failed',e)}}
+function openAuth(mode){authMode=mode;$('auth-title').textContent=mode==='signup'?'Create account':'Sign in';$('auth-subtitle').textContent=mode==='signup'?'Save your analyses and documents securely.':'Access your saved analyses and documents.';$('auth-submit').textContent=mode==='signup'?'Create account':'Sign in';$('auth-message').textContent='';$('auth-modal').hidden=false}
+async function authSubmit(e){e.preventDefault();if(!supabaseClient){$('auth-message').textContent='Account services are not configured yet.';return}const email=$('auth-email').value,password=$('auth-password').value;const action=authMode==='signup'?supabaseClient.auth.signUp({email,password}):supabaseClient.auth.signInWithPassword({email,password});const {error}=await action;if(error){$('auth-message').textContent=error.message;return}$('auth-modal').hidden=true}
+function showHome(){ $('home-view').hidden=false;$('account-view').hidden=true;window.scrollTo({top:0,behavior:'smooth'})}
+async function showAccount(){if(!authSession){openAuth('signin');return}$('home-view').hidden=true;$('account-view').hidden=false;$('account-email').textContent=authSession.user.email||'';$('profile-name').value=authSession.user.user_metadata?.display_name||'';await loadSavedDocuments();window.scrollTo({top:0,behavior:'smooth'})}
+async function loadSavedDocuments(){const list=$('saved-list');list.innerHTML='<div class="account-empty">Loading your saved documents…</div>';try{const r=await fetch('/history',{headers:authHeaders()}),j=await r.json();if(!r.ok)throw new Error(j.error);list.innerHTML=j.items.length?j.items.map(x=>`<div class="saved-row"><div class="saved-meta"><strong>${esc(x.file_name||x.doc_type)}</strong><span>${x.overall_risk}/100 risk · ${new Date(x.created_at).toLocaleString()}</span></div><div class="saved-actions"><button type="button" class="open-saved" data-id="${x.id}">View analysis</button>${x.file_path?`<button type="button" class="download-saved" data-id="${x.id}">Open file</button>`:''}<button type="button" class="delete-saved" data-id="${x.id}">Delete</button></div></div>`).join(''):'<div class="account-empty">No saved documents yet.</div>';document.querySelectorAll('.open-saved').forEach(b=>b.onclick=async()=>{await loadHistory(b.dataset.id);showHome()});document.querySelectorAll('.download-saved').forEach(b=>b.onclick=()=>openSavedFile(b.dataset.id));document.querySelectorAll('.delete-saved').forEach(b=>b.onclick=async()=>{await deleteHistory(b.dataset.id);loadSavedDocuments()})}catch(e){list.innerHTML=`<div class="account-empty">${esc(e.message)}</div>`}}
+async function openSavedFile(id){try{const r=await fetch('/history/'+encodeURIComponent(id)+'/file',{headers:authHeaders()}),j=await r.json();if(!r.ok)throw new Error(j.error);window.open(j.url,'_blank','noopener')}catch(e){$('profile-message').textContent=e.message}}
+document.querySelector('.sign-in').onclick=()=>authSession?showAccount():openAuth('signin');
+document.querySelector('.create-account').onclick=()=>openAuth('signup');$('close-auth').onclick=()=>{$('auth-modal').hidden=true};$('auth-form').onsubmit=authSubmit;
+$('reset-password').onclick=async()=>{if(!supabaseClient)return;$('auth-message').textContent='';const {error}=await supabaseClient.auth.resetPasswordForEmail($('auth-email').value,{redirectTo:location.origin});$('auth-message').textContent=error?error.message:'Check your email for a reset link.'};
+$('save-profile').onclick=async()=>{if(!supabaseClient)return;const {data,error}=await supabaseClient.auth.updateUser({data:{display_name:$('profile-name').value.trim()}});$('profile-message').textContent=error?error.message:'Profile saved.';if(!error&&data.user)authSession.user=data.user};
+$('sign-out').onclick=async()=>{await supabaseClient.auth.signOut();showHome()};
 async function run(url,opts,btn){
  $('err').textContent='';const old=btn.textContent;btn.disabled=true;btn.textContent='Reading your document…';
- try{opts=opts||{};opts.headers=Object.assign({'X-Client-ID':CLIENT_ID},opts.headers||{});const r=await fetch(url,opts),j=await r.json();if(!r.ok)throw new Error(j.error||'Something went wrong.');R=j.result;T=j.text||'';currentId=j.analysis_id||null;render();refreshHistory();$('out').scrollIntoView({behavior:'smooth'})}
+ try{opts=opts||{};opts.headers=Object.assign({'X-Client-ID':CLIENT_ID},authHeaders(),opts.headers||{});const r=await fetch(url,opts),j=await r.json();if(!r.ok)throw new Error(j.error||'Something went wrong.');R=j.result;T=j.text||'';currentId=j.analysis_id||null;render();refreshHistory();$('out').scrollIntoView({behavior:'smooth'})}
  catch(e){$('err').textContent=e.message}
  btn.disabled=false;btn.textContent=old}
 $('smp').onclick=()=>run('/sample',{},$('smp'));
 $('go').onclick=()=>{const fd=new FormData(),f=$('file').files[0];if(f)fd.append('file',f);fd.append('text',$('paste').value);run('/analyze',{method:'POST',body:fd},$('go'))};
 async function refreshHistory(){
- try{const r=await fetch('/history',{headers:{'X-Client-ID':CLIENT_ID}}),j=await r.json();if(!r.ok)throw new Error(j.error);$('history-list').innerHTML=j.items.length?j.items.map(x=>`<button class="history-item" data-id="${x.id}">${esc(x.doc_type)} · ${x.overall_risk}/100 · ${new Date(x.created_at).toLocaleString()}</button>`).join(''):'No analyses yet.';document.querySelectorAll('.history-item').forEach(b=>b.onclick=()=>loadHistory(b.dataset.id))}
+ try{const r=await fetch('/history',{headers:Object.assign({'X-Client-ID':CLIENT_ID},authHeaders())}),j=await r.json();if(!r.ok)throw new Error(j.error);$('history-list').innerHTML=j.items.length?j.items.map(x=>`<div class="history-item" data-id="${x.id}"><button type="button" class="history-open">${esc(x.doc_type)} · ${x.overall_risk}/100 · ${x.created_at?new Date(x.created_at).toLocaleString():'Saved'}</button>${authSession?`<button type="button" class="delete-history" data-id="${x.id}">Delete</button>`:''}</div>`).join(''):'No analyses yet.';document.querySelectorAll('.history-open').forEach(b=>b.onclick=()=>loadHistory(b.parentElement.dataset.id));document.querySelectorAll('.delete-history').forEach(b=>b.onclick=()=>deleteHistory(b.dataset.id))}
  catch(e){$('history-list').textContent='History is temporarily unavailable.'}}
+async function deleteHistory(id){if(!confirm('Delete this saved analysis and its uploaded file?'))return;try{const r=await fetch('/history/'+encodeURIComponent(id),{method:'DELETE',headers:authHeaders()});if(!r.ok){const j=await r.json();throw new Error(j.error)}if(currentId===id){currentId=null;$('out').hidden=true}refreshHistory()}catch(e){$('err').textContent=e.message}}
 async function loadHistory(id){
- try{const r=await fetch('/history/'+encodeURIComponent(id),{headers:{'X-Client-ID':CLIENT_ID}}),j=await r.json();if(!r.ok)throw new Error(j.error);R=j.result;T='';currentId=id;render();$('out').scrollIntoView({behavior:'smooth'})}
+ try{const r=await fetch('/history/'+encodeURIComponent(id),{headers:Object.assign({'X-Client-ID':CLIENT_ID},authHeaders())}),j=await r.json();if(!r.ok)throw new Error(j.error);R=j.result;T='';currentId=id;render();$('out').scrollIntoView({behavior:'smooth'})}
  catch(e){$('err').textContent=e.message}}
  $('refresh-history').onclick=refreshHistory;
 document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;document.querySelectorAll('.lang button').forEach(x=>x.setAttribute('aria-pressed',x===b));document.documentElement.lang=lang;if(R)render()});
@@ -90,4 +153,6 @@ function render(){
  $('cards').innerHTML=R.clauses.map((c,i)=>`<article class="card ${c.risk}" id="c${i}"><b>${L[c.risk]}</b><span class="cat">${esc(c.category)}</span><p>${esc(c.why_risky[lang])}</p><p class="ask"><b>${L.ask}:</b> ${esc(c.negotiate[lang])}</p></article>`).join('');
  $('score').textContent=R.overall_risk;$('slbl').textContent=L.score;$('type').textContent=R.doc_type;$('sum').textContent=R.summary[lang];
  document.querySelectorAll('mark').forEach(m=>{const go=()=>{const c=$('c'+m.dataset.i);c.scrollIntoView({behavior:'smooth',block:'center'});c.classList.add('flash');setTimeout(()=>c.classList.remove('flash'),1200)};m.onclick=go;m.onkeydown=e=>{if(e.key==='Enter')go()}})}
+document.querySelector('.brand').onclick=()=>showHome();
+setupAuth();refreshHistory();
 </script></body></html>

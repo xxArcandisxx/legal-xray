@@ -53,6 +53,28 @@ CORS_ORIGINS=*
 
 `OPENAI_BASE_URL` supports OpenAI-compatible gateways and local providers. For Groq, use `openai/gpt-oss-20b` for analysis and `qwen/qwen3.8-27b` for scanned-document OCR.
 
+### Optional accounts and long-term storage
+
+Set `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and the server-only `SUPABASE_SERVICE_KEY` to enable email/password accounts, password reset emails, hosted analysis history, and original-file storage. Anonymous users can continue using the app with browser-scoped history.
+
+Create a Supabase `analyses` table and `legal-documents` storage bucket before enabling this feature:
+
+```sql
+create table public.analyses (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null,
+  doc_type text not null,
+  overall_risk integer not null,
+  summary jsonb not null,
+  clauses jsonb not null,
+  file_name text,
+  file_path text,
+  created_at timestamptz not null default now()
+);
+```
+
+Keep the service-role key server-side only. Configure Supabase Auth email settings and storage policies before using this in production.
+
 ## Test
 
 ```powershell

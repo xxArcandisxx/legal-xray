@@ -25,3 +25,10 @@ CLIENT_ID_RE = re.compile(r"^[A-Za-z0-9_-]{8,80}$")
 IMG_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}
 ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt", *IMG_TYPES}
 CORS_ORIGINS = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "*").split(",")]
+SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+SUPABASE_ANON_KEY = (
+    os.getenv("SUPABASE_ANON_KEY")
+    or os.getenv("SUPABASE_PUBLISHABLE_KEY")
+    or os.getenv("SUPABASE_KEY")
+    or ""
+)
